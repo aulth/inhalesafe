@@ -32,6 +32,14 @@ function formatDateTimeForChart(dateTimeString) {
     });
 }
 
+const getTimeFormat = (time)=>{
+    return new Date(time).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
 const CoLevel = () => {
     const [chartData, setChartData] = useState({
         labels: [],
@@ -39,7 +47,8 @@ const CoLevel = () => {
             {
                 data: [],
                 label: 'co_ppm',
-                backgroundColor: "purple",
+                borderColor: "#ebebeb", // Connecting line color
+                backgroundColor: [],  // Background color for points
             },
         ],
     });
@@ -60,8 +69,11 @@ const CoLevel = () => {
                 formatDateTimeForChart(item.createdAt).startsWith(today)
             );
 
-            const newLabels = todayData.map(item => formatDateTimeForChart(item.createdAt));
+            const newLabels = todayData.map(item => getTimeFormat(item.createdAt));
             const newValues = todayData.map(item => parseFloat(item.co_ppm));
+
+            // Determine the background color based on the threshold (7)
+            const backgroundColor = newValues.map(value => (value > 35 ? "red" : "#00b812"));
 
             setChartData({
                 labels: newLabels,
@@ -69,7 +81,8 @@ const CoLevel = () => {
                     {
                         data: newValues,
                         label: 'co_ppm',
-                        backgroundColor: "red",
+                        borderColor: "#ebebeb",
+                        backgroundColor: backgroundColor,
                     },
                 ],
             });
@@ -110,6 +123,10 @@ const CoLevel = () => {
                             title: {
                                 display: true,
                                 text: 'Time',
+                            },
+                            ticks: {
+                                maxTicksLimit: 10, // Limit the number of displayed ticks
+                                autoSkip: true, // Automatically skip labels to fit the space
                             },
                         },
                     },
